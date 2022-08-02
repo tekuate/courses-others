@@ -1,0 +1,7 @@
+Value Used         Normal Value                             Control Parameter       
+----------         ------------                             -----------------
+   1.5                 1.5                              CHI (Entropy damping term)
+   1.5                 1.5                           b (exponential damping rate in y)
+   0.0                 0.0                            y_m Latitude (y) of maximum SST
+  -1.0                -1.0                          ALPHA (WISHE term magnitude and sign)
+   1.0                 1.0                                 k (Zonal wavenumber)

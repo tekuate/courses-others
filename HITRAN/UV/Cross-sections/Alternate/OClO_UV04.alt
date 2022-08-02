@@ -1,0 +1,14 @@
+OClO data come from:
+
+H. Kromminga, J. Orphal, P. Spietz, S. Voigt, and J. P. Burrows,
+The temperature dependence (213-293 K) of the absorption
+cross-sections of OClO in the 340-450 nm region measured by
+Fourier-transform spectroscopy, Journal of Photochemistry and
+Photobiology A: Chemistry 157, 149-160, 2003.
+
+OClO data are at 2 resolutions, 1 cm^-1 and 20 cm^-1, and are
+oversampled in the spectra that are the source of the HITRAN files.
+
+Original data are available at:
+
+http://www-iup.physik.uni-bremen.de/gruppen/molspec/

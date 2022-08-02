@@ -1,0 +1,8 @@
+AuthUserFile /data/wdocs/lists/hitran/.htpasswd
+AuthGroupFile /dev/null
+AuthName "Hitran Users"
+AuthType Basic
+<Limit GET POST>
+require valid-user
+</Limit>
+

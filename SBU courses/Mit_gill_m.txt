@@ -1,0 +1,30 @@
+load x.out
+load y.out
+load v.out
+load u.out
+load w.out
+load s.out
+load s0.out
+%x=x./(2.*3.14159);
+%u=u./(2.*3.14159);
+clf
+g=pcolor(x,y,w);
+shading interp
+hold on
+h=contour(x,y,s0,'k');
+set(gca,'fontweight','bold','fontsize',12);
+xlabel('x (radians)','fontweight','bold')
+ylabel('y','fontweight','bold')
+title('Sea surface saturation entropy (contours), w (shading)','fontweight','bold')
+hold off
+pause
+clf
+pcolor(x,y,s)
+shading interp
+hold on
+quiver(x,y,u,v)
+set(gca,'fontweight','bold','fontsize',12);
+xlabel('x (radians)','fontweight','bold')
+ylabel('y','fontweight','bold')
+title('Boundary layer entropy (shading), surface wind (arrows)','fontweight','bold')
+hold off

@@ -1,0 +1,47 @@
+      program uvstats
+
+!-- Read 200mb zonal and meridional ECMWF wind data
+!-- Units are meters per second
+!-- These are taken from the March 1998 I got from NASA Langley
+!-- I interpolated them from the hybrid sigma coordinate to 200mb, and
+!-- then remapped them from the 640x320 Gaussian grid to the standard
+!-- 144x73 grid                M. Branson, Feb. 2002
+
+      implicit none
+
+      integer :: irec,j
+      real, dimension(144,73,124) :: u,v
+      real, dimension(73,124) :: uzm
+      
+!-- Read all 31 days of March 1998
+!-- Uncomment/comment the read block that most suits your needs
+!-- BINARY DATA READ
+      open(unit=20,file='uv200.data',form='unformatted', &
+           action='read')
+      read(20) u
+      read(20) v
+      close(20)
+
+!-- ASCII DATA READ
+!      open(unit=20,file='uv200.asc',form='formatted', &
+!           action='read')
+!      read(20,'(5e15.8)') u
+!      read(20,'(5e15.8)') v
+!      close(20)
+ 
+      write(*,*) '--> minval(u(:,:,124))= ',minval(u(:,:,124))
+      write(*,*) '--> maxval(u(:,:,124))= ',maxval(u(:,:,124))
+
+!-- SAMPLE CALCULATION
+!-- Compute zonal mean zonal wind for all available times
+      do irec = 1,124
+        do j = 1,73
+          uzm(j,irec) = sum(u(:,j,irec))/144.
+        enddo
+      enddo
+      
+      open(unit=30,file='uzm.data',form='formatted')
+      write(30,'(5e15.8)') uzm
+      close(30)
+
+      end program uvstats
