@@ -1,0 +1,149 @@
+Function E_SAT,T
+  tc=T-273.16
+  es=6.112*exp(17.67*tc/(tc+243.5))
+  return, es
+end
+;------------------------------
+
+Function E_FAC,R,T
+
+;R micro
+
+Rw 		 		 = 461.0 		 ;J/kg/K
+rhow		 = 1000.0 		 ;kg/m3
+sigma		 = 0.075 		 ;N/m2
+mw		 		 = 18.0		 		 ;g/mol
+ms		 		 = 58.5		 		 ;g/mol
+M		 		 = 10.0		 ;1.0e-18 kg
+ion		 		 = 2.0
+
+fac=1.0+2*sigma/(r*rhow*Rw*T*1.0e-6)-3.0*ion*mw*M/(4.0*3.1416*ms*rhow*r*r*r)
+
+return,fac
+end
+;------------------------------
+
+
+;Constants
+
+Rw 		 		 = 461.0 		 ;J/kg/K
+rhow		 = 1000.0 		 ;kg/m3
+sigma		 = 0.075 		 ;N/m2
+mw		 		 = 18.0		 		 ;g/mol
+ms		 		 = 58.5		 		 ;g/mol
+M		 		 = 1.0e-14		 ;g
+ion		 		 = 2.0
+D		 		 = 2.5e-6		 ;m2/s
+lamda		 = D
+Lv 		 		 = 2.5E6		 		 ;J/kg
+
+;Environmental condition
+
+TF 		 		 = 273.16		 ;K
+RHF		 		 = 1.10
+; calculated EF
+EF		 = RHF*E_SAT(TF)		 		 ;mb
+
+; initial condition
+
+R00		 		 = 5.0; 1.0		 		 
+;micrometer
+T00		 		 = TF
+
+; Solution array
+
+N		 		 = 360*3+1
+deltaT		 = 10		 		 		 ; seconds
+time = indgen(n)*deltaT/60.         ; minutes
+
+
+; Arrays to be calculated
+R0		 =		 fltarr(n)
+T0		 =		 fltarr(n)
+E0		 =		 fltarr(n)
+DRDT=		 fltarr(n)
+
+; initial step
+
+R0[0]		 = 
+R00		 		 		 		 		 		 
+;um
+T0[0]		 = 
+T00		 		 		 		 		 		 
+;K
+E0[0]		 = E_SAT(T0[0])*E_FAC(R0[0],T0[0])		 ;mb
+DRDT[0] = D*(ef-e0[0])*100./(r0[0]*rhow*Rw*T0[0]*1.0e-6)*1.0e6 ;um/s
+
+i=0
+		 print,t0[i],es0[i],e0[i],drdt[i],r0[i]
+
+ix=1
+
+ ; calculate constant coeff.
+
+ ww=D*Lv/Lamda/Rw/TF
+
+;n=10
+;======================= looping
+for i=1,n-1 do begin
+ ;		 print,i
+
+ ;1 . Find T0
+  ;  goto,jump0
+
+        tjunk=indgen(1001)*0.001+TF
+        rjunk = tjunk-TF-ww*(EF-E_Sat(tjunk)*E_FAC(R0[i-1],Tjunk) )*100.
+        rjunk= abs(rjunk)
+        jj=where(rjunk eq min(rjunk))
+        jj1=jj[0]
+
+        T0[i] = tjunk[jj1]
+        ;stop
+
+    
+goto,jump1
+
+ jump0:
+   ; or relaxation
+       tx = tf
+       res = 1.0
+
+       j=0
+       while((abs(res) gt 0.01) and (j lt 100))do begin
+      ; while(abs(res) gt 0.01) do begin
+       res = tx-tf - ww*(ef-e_Sat(tx)*e_fac(r0[i-1],tx) )*100.
+      ; print,j,tx
+
+       tx = tx - 0.001*res
+ ;      print,tx,res
+       j=j+1 
+       endwhile
+       T0[i] = tx 
+ ;      print,tx,res
+ ;      stop
+  jump1:
+
+
+ ; 2. find the E0
+		 E0[i]		 = 
+E_SAT(T0[i])*E_FAC(R0[i-1],T0[i])		 ;mb
+
+ ; 3. find drdt
+
+		 DRDT[i] = 
+D*(ef-e0[i])*100./(r0[i-1]*rhow*Rw*T0[i]*1.0e-6)*1.0e6		 ;um/s
+ ; 4  integrate
+
+		 R0[i]		 =		 R0[i-1] + deltaT*DRDT[i]
+
+ ; 5  check
+;		 print,t0[i],es0[i],e0[i],drdt[i],r0[i]
+
+ix=1
+  
+; read,ix
+
+endfor
+
+end
+

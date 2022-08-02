@@ -1,0 +1,152 @@
+      program ecread
+
+c...reads ECMWF G160 pressure and temperature data for March 1, 1998 at 00Z. 
+c...Also read the surface pressure and surface geopotential values.
+c...The G160 grid is 640x320 grid cells on a regular Gaussian grid.  The
+c...data begins at the South Pole and at Greenwich.  
+ 
+c...The 31 vertical levels for the data are on a hybrid sigma coordinate
+c...system.  Coefficients are supplied to compute the layer edge pressures.
+
+      implicit none
+
+c...ecmwf vars
+      real ps(640,320), sfcgeo(640,320), datain(640,320)
+      real pres(640,320,31), temp(640,320,31)    
+      real prese(640,320,32)         
+      real aval(32), bval(32)
+
+c...loop/array indices
+      integer i,j,k,nlevel
+
+      nlevel = 31
+
+c...coefficients to compute ECMWF layer edge pressures
+      aval(1) = 0.
+      aval(2) = 2000.
+      aval(3) = 4000.
+      aval(4) = 6000.
+      aval(5) = 8000.
+      aval(6) = 9976.135361
+      aval(7) = 11820.539617
+      aval(8) = 13431.393926
+      aval(9) = 14736.356909
+      aval(10) = 15689.207458
+      aval(11) = 16266.610500
+      aval(12) = 16465.005734
+      aval(13) = 16297.619332
+      aval(14) = 15791.598604
+      aval(15) = 14985.269630
+      aval(16) = 13925.517858
+      aval(17) = 12665.291662
+      aval(18) = 11261.228878
+      aval(19) = 9771.406290
+      aval(20) = 8253.212096
+      aval(21) = 6761.341326
+      aval(22) = 5345.914240
+      aval(23) = 4050.717678
+      aval(24) = 2911.569385
+      aval(25) = 1954.805296
+      aval(26) = 1195.889791
+      aval(27) = 638.148911
+      aval(28) = 271.626545
+      aval(29) = 72.063577
+      aval(30) = 0.
+      aval(31) = 0.
+      aval(32) = 0.
+
+
+      bval(1) = 0.
+      bval(2) = 0.
+      bval(3) = 0.
+      bval(4) = 0.
+      bval(5) = 0.
+      bval(6) = 0.0003908582
+      bval(7) = 0.0029197006
+      bval(8) = 0.0091941320
+      bval(9) = 0.0203191555
+      bval(10) = 0.0369748598
+      bval(11) = 0.0594876397
+      bval(12) = 0.0878949492
+      bval(13) = 0.1220035886
+      bval(14) = 0.1614415235
+      bval(15) = 0.2057032385
+      bval(16) = 0.2541886223
+      bval(17) = 0.3062353873
+      bval(18) = 0.3611450218
+      bval(19) = 0.4182022749
+      bval(20) = 0.4766881754
+      bval(21) = 0.5358865832
+      bval(22) = 0.5950842740
+      bval(23) = 0.6535645569
+      bval(24) = 0.7105944258
+      bval(25) = 0.7654052430
+      bval(26) = 0.8171669567
+      bval(27) = 0.8649558510
+      bval(28) = 0.9077158297
+      bval(29) = 0.9442132326
+      bval(30) = 0.9729851852
+      bval(31) = 0.9922814815
+      bval(32) = 1.0000000000
+
+c...read in ECMWF surface pressure data (Pa)
+      write(*,*) 'reading ln(Psfc)'
+      open(unit=20,file='LNSP.asc', 
+     +        access='sequential',form='formatted')
+      read(20,'(5e15.8)') datain
+      do i = 1,640
+        do j = 1,320
+          ps(i,j) = exp(datain(i,j))
+        enddo
+      enddo
+      close(20)
+      
+c...compute ECMWF layer edge pressures from formula
+      do k = 1,nlevel+1
+        do i = 1,640
+          do j = 1,320
+            prese(i,j,k) = aval(k) + bval(k)*ps(i,j)
+          enddo
+        enddo
+      enddo
+
+c...read in ECMWF pressure data (Pa)
+      write(*,*) 'reading P'
+      open(unit=21,file='P.asc', 
+     +        access='sequential',form='formatted')
+      do k = 1,nlevel
+        read(21,'(5e15.8)') datain
+        do i = 1,640
+          do j = 1,320
+            pres(i,j,k) = datain(i,j)
+          enddo
+        enddo
+      enddo
+      close(21)
+
+c...read in ECMWF temperatures (K)
+      write(*,*) 'reading T'
+      open(unit=24,file='T.asc', 
+     +        access='sequential',form='formatted')
+      do k = 1,nlevel
+        read(24,'(5e15.8)') datain
+        do i = 1,640
+          do j = 1,320
+            temp(i,j,k) = datain(i,j)
+          enddo
+        enddo
+      enddo
+      close(24)
+
+c...read in ECMWF surface geopotential data (m^2/s^2)
+      write(*,*) 'reading sfcgeo'
+      open(unit=25,file='sfcgeo.asc',
+     +        access='sequential',form='formatted')
+      read(25,'(5e15.8)') sfcgeo
+      close(25)
+
+      do k = 1,nlevel
+        write(*,*) temp(100,100,k),pres(100,100,k)
+      enddo
+
+      end 

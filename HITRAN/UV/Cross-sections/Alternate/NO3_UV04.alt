@@ -1,0 +1,17 @@
+Data are from:
+
+J. Orphal, C. E. Fellows, and P.-M. Flaud, The visible absorption
+spectrum of NO3 measured by high-resolution Fourier-transform
+spectroscopy, Journal of Geophysical Research 108 (D3), 4077, doi:
+10.1029/2002JD002489, 2003.
+
+Note: for the strongest (0-0) band around 662 nm the temperature
+dependence can be modeled easily:
+
+sigma(T)/sigma(298K) =
+= [1 - exp(-1096.4/T) - 2*exp(-529.5/T)] / [1 - exp(-1096.4/298.0) - 2*exp(-529.5/298.0)] 
+= [1 - exp(-1096.4/T) - 2*exp(-529.5/T)] / 0.6364
+
+with T being the absolute temperature in K. This model does not apply
+for bands outside the 645-675 nm range.
+

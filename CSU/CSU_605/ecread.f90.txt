@@ -1,0 +1,95 @@
+      program ecread
+
+!-- reads ECMWF G160 pressure and temperature data for March 1, 1998 at 00Z. 
+!-- The surface pressure and surface geopotential fields are also input.  
+!-- The G160 grid is 640x320 grid cells on a regular Gaussian grid.  The
+!-- data begins at the South Pole and at Greenwich.  
+ 
+!-- The 31 vertical levels for the data are on a hybrid sigma coordinate
+!-- system.  Coefficients are supplied to compute the layer edge pressures.
+
+      implicit none
+
+!-- ecmwf vars
+      integer, parameter :: im=640,jm=320,nlevel=31
+      real, dimension(im,jm) :: &
+         ps, &                          ! surface pressure (Pa)
+         sfcgeo, &                      ! surface geopotential (m^2/s^2)  
+         datain
+      real, dimension(im,jm,nlevel) :: &
+         pres, &                        ! layer center pressure (Pa)
+         temp                           ! layer center temperature (K)
+      real, dimension(im,jm,nlevel+1) :: &
+         prese                         ! layer edge pressures (Pa)
+      real, dimension(nlevel+1) :: aval, bval
+
+!-- loop/array indices
+      integer :: i,j,k
+
+!-- coefficients to compute ECMWF layer edge pressures
+      aval = (/ 0., 2000., 4000., 6000., 8000., 9976.135361,   &
+        11820.539617, 13431.393926, 14736.356909, 15689.207458, &
+        16266.610500, 16465.005734, 16297.619332, 15791.598604, &
+        14985.269630, 13925.517858, 12665.291662, 11261.228878, &
+         9771.406290,  8253.212096,  6761.341326,  5345.914240, &
+         4050.717678,  2911.569385,  1954.805296,  1195.889791, &
+          638.148911,   271.626545,    72.063577,  0.0, 0.0, 0.0 /)
+
+      bval = (/ 0., 0., 0., 0., 0., 0.0003908582, 0.0029197006, &
+        0.0091941320, 0.0203191555, 0.0369748598, 0.0594876397, &
+        0.0878949492, 0.1220035886, 0.1614415235, 0.2057032385, &
+        0.2541886223, 0.3062353873, 0.3611450218, 0.4182022749, &
+        0.4766881754, 0.5358865832, 0.5950842740, 0.6535645569, &
+        0.7105944258, 0.7654052430, 0.8171669567, 0.8649558510, &
+        0.9077158297, 0.9442132326, 0.9729851852, 0.9922814815, &
+        1.0000000000 /)
+
+!-- read in ECMWF surface pressure data
+      write(*,*) 'reading ln(Psfc)'
+      open(unit=20,file='LNSP.grd',action='read', &
+              access='direct',form='unformatted',recl=640*320*4)
+      read(20,rec=1) datain
+      close(20)
+      ps = exp(datain)
+      write(*,*) 'maxval(ps) = ',maxval(ps)
+      write(*,*) 'minval(ps) = ',minval(ps)
+      
+!-- compute ECMWF layer edge pressures from formula
+      do k = 1,nlevel+1
+        prese(:,:,k) = aval(k) + bval(k)*ps(:,:)
+      enddo
+
+!-- read in ECMWF pressure data
+      write(*,*) 'reading P'
+      open(unit=21,file='P.grd',action='read', &
+              access='direct',form='unformatted',recl=640*320*4)
+      do k = 1,nlevel
+        read(21,rec=k) datain
+        pres(:,:,k) = datain(:,:)
+      enddo
+      close(21)
+
+!-- read in ECMWF temperatures
+      write(*,*) 'reading T'
+      open(unit=24,file='T.grd',action='read', &
+              access='direct',form='unformatted',recl=640*320*4)
+      do k = 1,nlevel
+        read(24,rec=k) datain
+        temp(:,:,k) = datain(:,:)
+      enddo
+      close(24)
+
+!-- read in ECMWF surface geopotential data
+      write(*,*) 'reading sfcgeo'
+      open(unit=25,file='sfcgeo.grd',action='read', &
+              access='direct',form='unformatted',recl=640*320*4)
+      read(25,rec=1) sfcgeo
+      close(25)
+      write(*,*) 'maxval(sfcgeo) = ',maxval(sfcgeo)
+      write(*,*) 'minval(sfcgeo) = ',minval(sfcgeo)
+
+      do k = 1,nlevel
+        write(*,*) temp(100,100,k),pres(100,100,k)
+      enddo
+
+      end program ecread

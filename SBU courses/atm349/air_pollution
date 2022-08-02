@@ -1,0 +1,57 @@
+%This is the plume model lecture
+
+Q = 160;
+u = 6  ;
+H = 60 ;
+
+xx = [0.1 0.2 0.3 0.4 0.5 0.8 1. 2. ...
+      3. 4. 5. 8. 10]
+xx = xx*1000.;
+
+sy = [ 11 22 33 44 57 87 115 210 305 400 470 700 890 ]
+sz = [7 13 20 25 32 50 62 120 155 210 260 410 500]
+
+G1 = Q/2./pi/u
+
+C1 = linspace(1,13,13);
+for i=1:13 
+ C1(i) = G1/sy(i)/sz(i)*exp(-H*H/2/sz(i)/sz(i));
+end
+
+plot(xx/1000.,C1*1000.);
+xlabel ('x distance (km)');
+ylabel ('concentration (mg/m3)');
+title(' plume model A');
+clf;
+%%%%%
+
+print d:\atm397\myfig1 -deps
+
+%question B
+
+C2 = linspace(1,51,51);
+yy = linspace(1,51, 51);
+for i=1:51 
+   yy(i) = -2000. + (i-1)*100;
+   C2(i) = G1/sy(7)/sz(7)*exp(-yy(i)*yy(i)/2/sy(7)/sy(7) - H^2/2/sz(7)/sz(7));
+end
+
+plot(yy/1000.,C2*1000.);
+xlabel ('y distance (km)');
+title(' plume model B');
+clf;
+
+% C
+
+zz=linspace(1,21,21);
+C3 = linspace(0,21,21);
+for i=1:21
+   zz(i) = (i-1)*100.;
+   C3(i) = G1/sy(7)/sz(7)*exp(-(zz(i)-H)^2/2./sz(7)/sz(7));
+end
+plot(zz/1000.,C3*1000);
+xlabel ('z distance (km)');
+
+
+
+
